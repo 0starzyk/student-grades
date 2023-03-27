@@ -19,10 +19,17 @@ feature_names = np.array(features.columns)
 label = data[label_column]
 
 linear = linear_model.LinearRegression()
+number_of_iterations = 10000
 
+accuracy_for_all = np.zeros(number_of_iterations)
+accuracy_for_limited = np.zeros(number_of_iterations)
 
-for X in [np.array(features), np.array(constrained_features)]:
-    y = np.array(label)
-    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.2)
-    linear.fit(X_train, y_train)
-    print(linear.score(X_test, y_test))
+for X in zip([np.array(features), np.array(constrained_features)], [accuracy_for_all, accuracy_for_limited]):
+    for iteration in range(number_of_iterations):
+        y = np.array(label)
+        X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X[0], y, test_size=0.2)
+        linear.fit(X_train, y_train)
+        X[1][iteration] += linear.score(X_test, y_test)
+
+print(np.mean(accuracy_for_all))
+print(np.mean(accuracy_for_limited))
